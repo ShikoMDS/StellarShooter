@@ -13,7 +13,6 @@ enum CharacterType {
 class Character {
 public:
     Character(CharacterType type, float x, float y);
-    Character();
 
     virtual void update(); // Marked as virtual to allow overriding in derived classes
     void draw(sf::RenderWindow& window) const;

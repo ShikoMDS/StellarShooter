@@ -1,5 +1,7 @@
 #include "Enemy.h"
 
+#include <iostream>
+
 Enemy::Enemy(float x, float y) : Character(CharTypeEnemy, x, y), speed(2.0f)
 {
 	// Additional initialization if needed
@@ -16,6 +18,9 @@ void Enemy::followPlayer(const sf::Vector2f& playerPosition) {
     if (playerPosition.y > getPosition().y) direction.y += speed;
     if (playerPosition.y < getPosition().y) direction.y -= speed;
 
-    // Check for collisions
     move(direction.x, direction.y);
+
+    // Debugging: Log the direction values
+    std::cout << "Enemy moving towards (" << direction.x << ", " << direction.y << ")" << std::endl;
+
 }

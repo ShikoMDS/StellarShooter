@@ -21,10 +21,6 @@ void Game::start(sf::RenderWindow& Window)
 	sf::Vector2u windowSize = Window.getSize();
 	sf::View view(sf::FloatRect(0.f, 0.f, windowSize.x / 2.0f, windowSize.y / 2.0f));
 
-	// In Game::start method
-	for (auto& enemy : MLevel.getEnemies()) {
-		enemy->update(MPlayer.getPosition());
-	}
 
 	MAudio.playGameMusic();
 	sf::Texture playerTexture;
@@ -95,6 +91,11 @@ void Game::start(sf::RenderWindow& Window)
 			MLevel.update();
 			MPlayer.update(); // Update the player logic if needed
 			processInput(); // Handle player input
+
+			// In Game::start method
+			for (auto& enemy : MLevel.getEnemies()) {
+				enemy->update(MPlayer.getPosition());
+			}
 
 			// Optionally, set the view's center to the player's position or another focal point
 			view.setCenter(MPlayer.getPosition());
