@@ -1,8 +1,6 @@
 #include "Enemy.h"
 
-#include <iostream>
-
-Enemy::Enemy(float x, float y) : Character(CharTypeEnemy, x, y), speed(2.0f)
+Enemy::Enemy(float x, float y) : Character(CharTypeEnemy, x, y), speed(1.0f)
 {
 	// Additional initialization if needed
 }
@@ -12,15 +10,27 @@ void Enemy::update(const sf::Vector2f& playerPosition) {
 }
 
 void Enemy::followPlayer(const sf::Vector2f& playerPosition) {
-    sf::Vector2f direction(0.f, 0.f);
-    if (playerPosition.x > getPosition().x) direction.x += speed;
-    if (playerPosition.x < getPosition().x) direction.x -= speed;
-    if (playerPosition.y > getPosition().y) direction.y += speed;
-    if (playerPosition.y < getPosition().y) direction.y -= speed;
+    // Calculate the direction vector between the enemy and the player
+    sf::Vector2f direction = playerPosition - getPosition();
 
+    // Normalize the direction vector (so its length is 1)
+    float length = std::sqrt(direction.x * direction.x + direction.y * direction.y);
+    if (length != 0) {
+        direction.x /= length;
+        direction.y /= length;
+    }
+
+    // Multiply the normalized direction by the enemy's speed
+    direction.x *= speed;
+    direction.y *= speed;
+
+    // Uncomment the below line to check for collisions with the game's collision function
+    // if (!game.willCollideWithWall(*this, direction.x, direction.y)) {
     move(direction.x, direction.y);
+    // }
 
-    // Debugging: Log the direction values
-    std::cout << "Enemy moving towards (" << direction.x << ", " << direction.y << ")" << std::endl;
-
+    // Debugging: Output the enemy's new position and the direction it is moving
+    std::cout << "Enemy position: (" << getPosition().x << ", " << getPosition().y << ")" << std::endl;
+    std::cout << "Player position: (" << playerPosition.x << ", " << playerPosition.y << ")" << std::endl;
+    std::cout << "Calculated direction: (" << direction.x << ", " << direction.y << ")" << std::endl;
 }

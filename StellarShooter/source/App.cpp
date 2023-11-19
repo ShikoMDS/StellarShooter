@@ -1,6 +1,6 @@
 #include "App.h"
 
-App::App() : MWindow(sf::VideoMode(800, 600), "Stellar Shooter"), MConfig(), MAudio(MConfig), MGame(MConfig, MAudio)
+App::App() : MWindow(sf::VideoMode(800, 600), "Stellar Shooter"), MAudio(MConfig), MGame(MConfig, MAudio)
 {
 	MConfig.loadFromFile("config.ini");
 	MConfig.applySettings(MWindow);

@@ -1,5 +1,7 @@
 #pragma once
 #include "Character.h"
+#include <cmath> // Include for sqrt function
+#include <iostream>
 
 class Enemy : public Character {
 public:

@@ -35,6 +35,7 @@ private:
 	bool MIsPaused;
 
 	void processInput();
+	void attemptPlayerMove(const sf::Vector2f& movement);
 	bool willCollideWithWall(float deltaX, float deltaY);
 	void togglePause();
 	void processConfiguration();

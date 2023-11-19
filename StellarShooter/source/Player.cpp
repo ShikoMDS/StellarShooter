@@ -12,13 +12,24 @@ Player::~Player()
 	// Clean up resources if needed
 }
 
-void Player::update()
-{
-	// Handle player input for movement
-	// ...
+void Player::update() {
+	float moveX = 0.0f, moveY = 0.0f;
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
+		moveX -= getSpeed();
+	}
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
+		moveX += getSpeed();
+	}
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
+		moveY -= getSpeed();
+	}
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
+		moveY += getSpeed();
+	}
 
-	// Update player logic
-	// You can handle movement here if needed
+	// Check for collisions here, if necessary
+
+	move(moveX, moveY);
 }
 
 void Player::draw(sf::RenderWindow& Window)

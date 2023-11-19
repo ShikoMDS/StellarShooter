@@ -18,8 +18,8 @@ Game::~Game()
 void Game::start(sf::RenderWindow& Window)
 {
 	// Calculate the view size to zoom in (2x zoom)
-	sf::Vector2u windowSize = Window.getSize();
-	sf::View view(sf::FloatRect(0.f, 0.f, windowSize.x / 2.0f, windowSize.y / 2.0f));
+	//sf::Vector2u windowSize = Window.getSize();
+	//sf::View view(sf::FloatRect(0.f, 0.f, windowSize.x / 2.0f, windowSize.y / 2.0f));
 
 
 	MAudio.playGameMusic();
@@ -36,6 +36,8 @@ void Game::start(sf::RenderWindow& Window)
 	{
 		std::cout << "Level loaded successfully." << std::endl;
 		MPlayer.setPosition(MLevel.getPlayerPosition());
+		std::cout << "Player position set to: " << MPlayer.getPosition().x << ", " << MPlayer.getPosition().y << std::endl;
+
 	}
 	else
 	{
@@ -88,18 +90,18 @@ void Game::start(sf::RenderWindow& Window)
 		// Process input, update game logic, render, etc.
 		if (Window.hasFocus() && !MIsPaused)
 		{
-			MLevel.update();
+			//MLevel.update();
 			MPlayer.update(); // Update the player logic if needed
 			processInput(); // Handle player input
 
 			// In Game::start method
-			for (auto& enemy : MLevel.getEnemies()) {
-				enemy->update(MPlayer.getPosition());
+			for (auto& Enemy : MLevel.getEnemies()) {
+				Enemy->update(MPlayer.getPosition());
 			}
 
 			// Optionally, set the view's center to the player's position or another focal point
-			view.setCenter(MPlayer.getPosition());
-			Window.setView(view);
+			//view.setCenter(MPlayer.getPosition());
+			//Window.setView(view);
 		}
 
 		processConfiguration();
@@ -111,8 +113,8 @@ void Game::start(sf::RenderWindow& Window)
 		MPlayer.draw(Window); // Draw the player
 
 		if (MIsPaused) {
-			sf::Text pausedText("Paused", MFont, 30);
-			pausedText.setPosition(100, 100); // Set to appropriate position
+			sf::Text PausedText("Paused", MFont, 30);
+			PausedText.setPosition(100, 100); // Set to appropriate position
 
 			sf::Text resumeText("Resume", MFont, 24);
 			resumeText.setPosition(100, 150); // Set to appropriate position
@@ -122,7 +124,7 @@ void Game::start(sf::RenderWindow& Window)
 			menuText.setPosition(100, 200); // Set to appropriate position
 			menuButtonBounds = menuText.getGlobalBounds(); // Get the bounds
 
-			Window.draw(pausedText);
+			Window.draw(PausedText);
 			Window.draw(resumeText);
 			Window.draw(menuText);
 		}
@@ -156,20 +158,22 @@ bool Game::willCollide(const sf::FloatRect& futureBounds, const std::vector<sf::
 }
 
 void Game::processInput() {
-	float moveX = 0.0f, moveY = 0.0f;
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) moveX = -MPlayer.getSpeed();
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) moveX = MPlayer.getSpeed();
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::W)) moveY = -MPlayer.getSpeed();
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) moveY = MPlayer.getSpeed();
+	sf::Vector2f movement(0.0f, 0.0f);
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) movement.x = -MPlayer.getSpeed();
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) movement.x = MPlayer.getSpeed();
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::W)) movement.y = -MPlayer.getSpeed();
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) movement.y = MPlayer.getSpeed();
 
-	// Process movement on the X-axis
-	if (!willCollideWithWall(moveX, 0.0f)) {
-		MPlayer.move(moveX, 0.0f);
+	attemptPlayerMove(movement);
+}
+
+void Game::attemptPlayerMove(const sf::Vector2f& movement) {
+	// Check and apply movement on each axis separately
+	if (!willCollideWithWall(movement.x, 0.0f)) {
+		MPlayer.move(movement.x, 0.0f);
 	}
-
-	// Process movement on the Y-axis
-	if (!willCollideWithWall(0.0f, moveY)) {
-		MPlayer.move(0.0f, moveY);
+	if (!willCollideWithWall(0.0f, movement.y)) {
+		MPlayer.move(0.0f, movement.y);
 	}
 }
 
