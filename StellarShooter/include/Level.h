@@ -22,6 +22,7 @@ public:
     const sf::Vector2f& getPlayerPosition() const;
     const std::vector<Character*>& getWalls() const;
     const std::vector<Enemy*>& getEnemies() const;
+    const std::vector<Character*>& getTraps() const;
     void update();
 
 private:
@@ -33,7 +34,6 @@ private:
     Player MPlayer;
 
     void createLevelElement(char type, float x, float y);
-    void clearLevel();
 
     const float tileSize = 32.0f;
 };

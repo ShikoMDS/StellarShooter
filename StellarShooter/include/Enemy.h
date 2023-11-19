@@ -7,10 +7,9 @@ class Enemy : public Character {
 public:
     Enemy(float x, float y);
 
-    void update(const sf::Vector2f& playerPosition); // Update enemy logic, such as following the player
+    // Method to calculate the direction of movement towards the player
+    sf::Vector2f calculateMovement(const sf::Vector2f& playerPosition);
 
 private:
     float speed; // Speed of the enemy
-
-    void followPlayer(const sf::Vector2f& playerPosition); // Logic for following the player
 };

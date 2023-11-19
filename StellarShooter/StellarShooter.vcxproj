@@ -178,6 +178,7 @@
     <ClCompile Include="source\Player.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\AiObserver.h" />
     <ClInclude Include="include\Audio.h" />
     <ClInclude Include="include\Character.h" />
     <ClInclude Include="include\Config.h" />
@@ -186,6 +187,7 @@
     <ClInclude Include="include\Level.h" />
     <ClInclude Include="include\Menu.h" />
     <ClInclude Include="include\Player.h" />
+    <ClInclude Include="source\AiObserver.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="config.ini" />

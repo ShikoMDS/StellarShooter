@@ -31,19 +31,9 @@ void Game::start(sf::RenderWindow& Window)
 
 	MPlayer.setTexture(playerTexture);
 
-	// Load initial level or start a new game
-	if (MLevel.loadFromFile("Resources/Levels/level1.txt"))
-	{
-		std::cout << "Level loaded successfully." << std::endl;
-		MPlayer.setPosition(MLevel.getPlayerPosition());
-		std::cout << "Player position set to: " << MPlayer.getPosition().x << ", " << MPlayer.getPosition().y << std::endl;
 
-	}
-	else
-	{
-		std::cerr << "Failed to load the level." << std::endl;
-		// Handle level loading error if needed
-	}
+	// Load initial level or start a new game
+	loadLevel("Resources/Levels/level1.txt");
 
 	// Game loop
 	while (Window.isOpen())
@@ -95,9 +85,31 @@ void Game::start(sf::RenderWindow& Window)
 			processInput(); // Handle player input
 
 			// In Game::start method
-			for (auto& Enemy : MLevel.getEnemies()) {
-				Enemy->update(MPlayer.getPosition());
+			for (auto& enemy : MLevel.getEnemies()) {
+				sf::Vector2f movement = enemy->calculateMovement(MPlayer.getPosition());
+				attemptEnemyMove(*enemy, movement);
 			}
+
+			// Check collision with traps
+			for (const auto& trap : MLevel.getTraps()) {
+				if (isColliding(MPlayer.getGlobalBounds(), trap->getGlobalBounds())) {
+					// Handle collision with a trap (e.g., reduce player health)
+					MLevel.unloadLevel();
+					restartLevel();
+				}
+			}
+
+			// Check collision with enemies
+			for (const auto& enemy : MLevel.getEnemies()) {
+				if (isColliding(MPlayer.getGlobalBounds(), enemy->getGlobalBounds())) {
+					// Handle collision with an enemy (e.g., reduce player health or restart level)
+					MLevel.unloadLevel();
+					restartLevel();
+				}
+			}
+
+			// Check and resolve collisions between enemies
+			checkAndResolveEnemyCollisions();
 
 			// Optionally, set the view's center to the player's position or another focal point
 			//view.setCenter(MPlayer.getPosition());
@@ -134,8 +146,30 @@ void Game::start(sf::RenderWindow& Window)
 	}
 }
 
+void Game::attemptEnemyMove(Enemy& enemy, const sf::Vector2f& movement) {
+	// Check collision separately for each axis
+	if (!willCollideWithWall(enemy, movement.x, 0.0f)) {
+		enemy.move(movement.x, 0.0f);
+	}
+	if (!willCollideWithWall(enemy, 0.0f, movement.y)) {
+		enemy.move(0.0f, movement.y);
+	}
+}
+
 bool Game::willCollideWithWall(const Character& character, float deltaX, float deltaY) {
-	sf::FloatRect futureBounds = character.getSprite().getGlobalBounds();
+	sf::FloatRect futureBounds = character.getGlobalBounds();
+
+	// Adjustments based on the character's sprite
+	const float shrinkLeft = 1.5f;
+	const float shrinkRight = 2.0f;
+	const float shrinkTop = 2.0f;
+	const float shrinkBottom = 2.0f;
+
+	futureBounds.left += shrinkLeft;
+	futureBounds.width -= (shrinkLeft + shrinkRight);
+	futureBounds.top += shrinkTop;
+	futureBounds.height -= (shrinkTop + shrinkBottom);
+
 	futureBounds.left += deltaX;
 	futureBounds.top += deltaY;
 
@@ -147,14 +181,16 @@ bool Game::willCollideWithWall(const Character& character, float deltaX, float d
 	return false;
 }
 
+void Game::restartLevel() {
+	// Reset player's position to the starting position of the level
+	MPlayer.setPosition(MLevel.getPlayerPosition());
 
-bool Game::willCollide(const sf::FloatRect& futureBounds, const std::vector<sf::Sprite>& walls) {
-	for (const auto& wall : walls) {
-		if (futureBounds.intersects(wall.getGlobalBounds())) {
-			return true;
-		}
-	}
-	return false;
+	// Reset other game states as necessary (e.g., player health, score)
+
+	// Reload the level
+	loadLevel(currentLevelPath);
+
+	// Reset any other necessary states (e.g., enemy positions)
 }
 
 void Game::processInput() {
@@ -258,4 +294,44 @@ void Game::update() {
         // Calculate enemy's new position
         // ... Rest of the logic ...
     }
+}
+
+void Game::checkAndResolveEnemyCollisions() {
+	for (size_t i = 0; i < MLevel.getEnemies().size(); ++i) {
+		for (size_t j = i + 1; j < MLevel.getEnemies().size(); ++j) {
+			Enemy* enemy1 = MLevel.getEnemies()[i];
+			Enemy* enemy2 = MLevel.getEnemies()[j];
+
+			if (enemy1->getGlobalBounds().intersects(enemy2->getGlobalBounds())) {
+				// Handle collision
+				// For example, prevent enemies from overlapping or adjust their positions
+				resolveEnemyCollision(*enemy1, *enemy2);
+			}
+		}
+	}
+}
+
+void Game::resolveEnemyCollision(Enemy& enemy1, Enemy& enemy2) {
+	// Implement collision resolution logic here
+	// For example, you might push the enemies away from each other
+	sf::Vector2f direction = enemy1.getPosition() - enemy2.getPosition();
+	float length = std::sqrt(direction.x * direction.x + direction.y * direction.y);
+
+	if (length != 0) {
+		direction /= length; // Normalize the direction vector
+		float overlap = 0.5f * (length - enemy1.getGlobalBounds().width);
+		enemy1.move(overlap * direction.x, overlap * direction.y);
+		enemy2.move(-overlap * direction.x, -overlap * direction.y);
+	}
+}
+
+void Game::loadLevel(const std::string& levelPath) {
+	currentLevelPath = levelPath; // Store the current level path
+	MLevel.loadFromFile(levelPath); // Load the level using Level class method
+	// Additional setup as needed (e.g., setting enemy positions)
+	MPlayer.setPosition(MLevel.getPlayerPosition());
+}
+
+bool Game::isColliding(const sf::FloatRect& bounds1, const sf::FloatRect& bounds2) {
+	return bounds1.intersects(bounds2);
 }

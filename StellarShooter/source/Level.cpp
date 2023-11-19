@@ -90,12 +90,9 @@ const std::vector<Character*>& Level::getWalls() const {
 const std::vector<Enemy*>& Level::getEnemies() const {
     return enemies;
 }
+const std::vector<Character*>& Level::getTraps() const {
+    return traps;
+}
 
 void Level::update() {
-    // Update logic for the level
-    // For example, update enemies, traps, or other dynamic elements within the level
-    for (auto& enemy : enemies) {
-        enemy->update(MPlayer.getPosition()); // Assuming enemies chase the player
-    }
-    // ... other update logic ...
 }

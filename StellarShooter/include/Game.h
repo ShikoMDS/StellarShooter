@@ -16,9 +16,12 @@ public:
 	~Game();
 
 	void start(sf::RenderWindow& Window);
+	void attemptEnemyMove(Enemy& enemy, const sf::Vector2f& movement);
 	bool willCollideWithWall(const Character& character, float deltaX, float deltaY);
-	bool willCollide(const sf::FloatRect& futureBounds, const std::vector<sf::Sprite>& walls);
 	
+	// Function to restart the level
+	void restartLevel();
+
 
 private:
 	Level MLevel;
@@ -40,4 +43,10 @@ private:
 	void togglePause();
 	void processConfiguration();
 	void update();
+	void checkAndResolveEnemyCollisions();
+	void resolveEnemyCollision(Enemy& enemy1, Enemy& enemy2);
+
+	void loadLevel(const std::string& levelPath); // Function to load a level
+	bool isColliding(const sf::FloatRect& bounds1, const sf::FloatRect& bounds2);
+	std::string currentLevelPath; // Store the path of the current level
 };
