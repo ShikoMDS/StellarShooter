@@ -1,59 +1,68 @@
 #include "Character.h"
 
-Character::Character(CharacterType type, float x, float y) : charType(type) {
-    loadTexture();
-    sprite.setPosition(x, y);
+Character::Character(const CharacterType Type, const float X, const float Y) : CharType(Type)
+{
+	loadTexture();
+	Sprite.setPosition(X, Y);
 }
 
-void Character::update() {
-    // Update logic for the character
-    // This can be empty or overridden in derived classes
+void Character::update()
+{
+	// Update logic for the character
+	// This can be empty or overridden in derived classes
 }
 
-void Character::draw(sf::RenderWindow& window) const {
-    window.draw(sprite);
+void Character::draw(sf::RenderWindow& Window) const
+{
+	Window.draw(Sprite);
 }
 
-const sf::Sprite& Character::getSprite() const {
-    return sprite;
+const sf::Sprite& Character::getSprite() const
+{
+	return Sprite;
 }
 
-sf::Vector2f Character::getPosition() const {
-    return sprite.getPosition();
+sf::Vector2f Character::getPosition() const
+{
+	return Sprite.getPosition();
 }
 
-void Character::setPosition(const sf::Vector2f& position) {
-    sprite.setPosition(position);
+void Character::setPosition(const sf::Vector2f& Position)
+{
+	Sprite.setPosition(Position);
 }
 
-void Character::move(float deltaX, float deltaY) {
-    sprite.move(deltaX, deltaY);
+void Character::move(const float DeltaX, const float DeltaY)
+{
+	Sprite.move(DeltaX, DeltaY);
 }
 
 sf::FloatRect Character::getGlobalBounds() const
 {
-    return sprite.getGlobalBounds();
+	return Sprite.getGlobalBounds();
 }
 
-void Character::loadTexture() {
-    // Load different textures based on the character type
-    switch (charType) {
-    case CharTypePlayer:
-        texture.loadFromFile("path/to/player_texture.png");
-        break;
-    case CharTypeWall:
-        texture.loadFromFile("Resources/Sprites/Wall.png");
-        break;
-    case CharTypeTrap:
-        texture.loadFromFile("Resources/Sprites/Rift.png");
-        break;
-    case CharTypeEnemy:
-        texture.loadFromFile("Resources/Sprites/Enemy.png");
-        break;
-    case CharTypeWin:
-        texture.loadFromFile("Resources/Sprites/BlackHole.png");
-        break;
-        // Add cases for other types
-    }
-    sprite.setTexture(texture);
+void Character::loadTexture()
+{
+	// Load different textures based on the character type
+	switch (CharType)
+	{
+	case CharTypePlayer:
+		Texture.loadFromFile("path/to/player_texture.png");
+		break;
+	case CharTypeWall:
+		Texture.loadFromFile("Resources/Sprites/Wall.png");
+		break;
+	case CharTypeTrap:
+		Texture.loadFromFile("Resources/Sprites/Rift.png");
+		break;
+	case CharTypeEnemy:
+		Texture.loadFromFile("Resources/Sprites/Enemy.png");
+		break;
+	case CharTypeWin:
+		Texture.loadFromFile("Resources/Sprites/BlackHole.png");
+		break;
+	// Add cases for other types
+	}
+	Sprite.setTexture(Texture);
 }

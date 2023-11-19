@@ -2,7 +2,7 @@
 
 Audio::Audio(const Config& Config) : MConfig(Config)
 {
-	// Load sound and music resources (replace paths with your actual asset paths)
+	// Load sound and music resources
 	if (!MShootBuffer.loadFromFile("path_to_shoot.wav"))
 	{
 		// Handle error loading shoot sound

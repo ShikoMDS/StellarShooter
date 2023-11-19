@@ -1,19 +1,16 @@
 #include "App.h"
 
-App::App() : MWindow(sf::VideoMode(800, 600), "Stellar Shooter"), MAudio(MConfig), MGame(MConfig, MAudio)
+App::App() : MWindow(sf::VideoMode(1600, 900), "Stellar Shooter", sf::Style::Close), MAudio(MConfig), MGame(MConfig, MAudio)
 {
 	MConfig.loadFromFile("config.ini");
 	MConfig.applySettings(MWindow);
 	MAudio.updateVolume();
-
-	// The Game object (game) is now a member variable and is constructed here
-	// No need to create a local Game object
 }
 
 App::~App()
 {
 	// Clean up resources
-	if (!MConfig.saveToFile("config.ini")) 
+	if (!MConfig.saveToFile("config.ini"))
 	{
 		std::cerr << "Warning: Failed to save configuration to file." << std::endl;
 	}
@@ -75,6 +72,6 @@ void App::loadConfig()
 
 void App::saveProgress()
 {
-	// Save game progress using SaveGameManager
+	// Save game progress
 	// Save player position, level, and other relevant information
 }

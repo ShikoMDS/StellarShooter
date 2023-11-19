@@ -1,7 +1,8 @@
 #pragma once
 
-#include <SFML/Audio.hpp>
 #include "Config.h"
+
+#include <SFML/Audio.hpp>
 
 class Audio
 {
@@ -10,10 +11,10 @@ public:
 
 	void updateVolume();
 
-	void playShootSound(); // Function for player shoot sound
-	void playPlayerHitSound(); // Function for player hit sound
-	void playEnemyHitSound(); // Function for enemy hit sound
-	void playDeathSound(); // Function for death sound
+	void playShootSound(); 
+	void playPlayerHitSound(); 
+	void playEnemyHitSound(); 
+	void playDeathSound(); 
 	void playMenuMusic();
 	void playGameMusic();
 

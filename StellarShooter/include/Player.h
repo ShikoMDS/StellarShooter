@@ -1,4 +1,3 @@
-// Player.h
 #pragma once
 
 #include <SFML/Graphics.hpp>
@@ -10,10 +9,10 @@ public:
 	~Player();
 
 	void update();
-	void draw(sf::RenderWindow& Window);
+	void draw(sf::RenderWindow& Window) const;
 
 
-	void setTexture(const sf::Texture& texture);
+	void setTexture(const sf::Texture& Texture);
 	// Set the player's position
 	void setPosition(sf::Vector2f NewPosition);
 
@@ -22,16 +21,16 @@ public:
 	sf::FloatRect getGlobalBounds() const;
 
 	// Move the player by a given offset
-	void move(float offsetX, float offsetY);
+	void move(float OffsetX, float OffsetY);
 
 	// Getter for player speed
 	float getSpeed() const;
 
-	void setCollisionDirection(const sf::Vector2f& direction);
-	bool canMoveInDirection(const sf::Vector2f& direction) const;
+	void setCollisionDirection(const sf::Vector2f& Direction);
+	bool canMoveInDirection(const sf::Vector2f& Direction) const;
 
 private:
-	sf::Sprite MSprite; // For simplicity, you can use a rectangle as the player representation
+	sf::Sprite MSprite;
 	float MSpeed; // Adjust the player's movement speed
-	sf::Vector2f lastCollisionDirection;
+	sf::Vector2f LastCollisionDirection;
 };

@@ -74,12 +74,6 @@
     <ClInclude Include="include\Character.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\AiObserver.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="source\AiObserver.cpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="config.ini" />
@@ -88,6 +82,16 @@
     <Font Include="Resources\Fonts\Pixeled.ttf" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="Resources\Levels\level1.txt" />
+    <Text Include="Resources\Levels\Level1.txt" />
+    <Text Include="Resources\Levels\Level2.txt" />
+    <Text Include="Resources\Levels\Level3.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Media Include="Resources\Audio\Battle.wav">
+      <Filter>Resource Files</Filter>
+    </Media>
+    <Media Include="Resources\Audio\Menu.wav">
+      <Filter>Resource Files</Filter>
+    </Media>
   </ItemGroup>
 </Project>

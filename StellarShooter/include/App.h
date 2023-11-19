@@ -1,13 +1,13 @@
 #pragma once
 
-#include <SFML/Graphics.hpp>
-
 #include "Audio.h"
 #include "Config.h"
-#include "Level.h"
-#include "Player.h"
-#include "Menu.h"
 #include "Game.h"
+#include "Level.h"
+#include "Menu.h"
+#include "Player.h"
+
+#include <SFML/Graphics.hpp>
 
 class App
 {
@@ -24,7 +24,7 @@ private:
 
 	void loadConfig();
 	void saveProgress();
-	
+
 
 	sf::RenderWindow MWindow;
 	Player MPlayer;
@@ -32,5 +32,4 @@ private:
 	Audio MAudio;
 	Level MLevel;
 	Game MGame;
-	// Add other necessary variables and functions here
 };

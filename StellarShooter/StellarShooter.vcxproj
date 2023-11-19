@@ -178,7 +178,6 @@
     <ClCompile Include="source\Player.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\AiObserver.h" />
     <ClInclude Include="include\Audio.h" />
     <ClInclude Include="include\Character.h" />
     <ClInclude Include="include\Config.h" />
@@ -187,7 +186,6 @@
     <ClInclude Include="include\Level.h" />
     <ClInclude Include="include\Menu.h" />
     <ClInclude Include="include\Player.h" />
-    <ClInclude Include="source\AiObserver.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="config.ini" />
@@ -196,7 +194,13 @@
     <Font Include="Resources\Fonts\Pixeled.ttf" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="Resources\Levels\level1.txt" />
+    <Text Include="Resources\Levels\Level3.txt" />
+    <Text Include="Resources\Levels\Level2.txt" />
+    <Text Include="Resources\Levels\Level1.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Media Include="Resources\Audio\Battle.wav" />
+    <Media Include="Resources\Audio\Menu.wav" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

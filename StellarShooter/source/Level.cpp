@@ -2,97 +2,122 @@
 #include "Level.h"
 
 
-Level::Level() {
-    // Load textures or any other initial setup
+Level::Level()
+{
+	// Load textures or any other initial setup
 }
 
-Level::~Level() {
-    unloadLevel();
+Level::~Level()
+{
+	unloadLevel();
 }
 
-bool Level::loadFromFile(const std::string& Filename) {
-    std::ifstream File(Filename);
-    if (!File.is_open()) {
-        std::cerr << "Failed to open level file: " << Filename << std::endl;
-        return false;
-    }
+bool Level::loadFromFile(const std::string& Filename)
+{
+	std::ifstream File(Filename);
+	if (!File.is_open())
+	{
+		std::cerr << "Failed to open level file: " << Filename << std::endl;
+		return false;
+	}
 
-    std::string Line;
-    size_t Y = 0;
-    while (std::getline(File, Line)) {
-        for (size_t X = 0; X < Line.size(); ++X) {
-            createLevelElement(Line[X], X * tileSize, Y * tileSize);
-        }
-        Y++;
-    }
-    File.close();
-    return true;
+	std::string Line;
+	size_t Y = 0;
+	while (std::getline(File, Line))
+	{
+		for (size_t X = 0; X < Line.size(); ++X)
+		{
+			createLevelElement(Line[X], X * TileSize, Y * TileSize);
+		}
+		Y++;
+	}
+	File.close();
+	return true;
 }
 
-void Level::createLevelElement(char type, float x, float y) {
-    switch (type) {
-    case 'x':
-        walls.push_back(new Character(CharTypeWall, x, y));
-        break;
-    case 't':
-        traps.push_back(new Character(CharTypeTrap, x, y));
-        break;
-    case 'e': // Enemy
-        enemies.push_back(new Enemy(x, y));
-        break;
-    case 'w':
-        winTile = new Character(CharTypeWin, x, y);
-        break;
-    case 's':
-        playerPosition = sf::Vector2f(x, y);
-        break;
-        // Additional cases as needed
-    }
+void Level::createLevelElement(const char Type, const float X, const float Y)
+{
+	switch (Type)
+	{
+	case 'x': // Walls
+		MWalls.push_back(new Character(CharTypeWall, X, Y));
+		break;
+	case 't': // Traps
+		MTraps.push_back(new Character(CharTypeTrap, X, Y));
+		break;
+	case 'e': // Enemy
+		MEnemies.push_back(new Enemy(X, Y));
+		break;
+	case 'w': // Win Tile
+		MWinTile = new Character(CharTypeWin, X, Y);
+		break;
+	case 's': // Player position
+		MPlayerPosition = sf::Vector2f(X, Y);
+		break;
+	// Additional cases as needed
+	}
 }
 
-void Level::draw(sf::RenderWindow& Window) const {
-    for (const auto& wall : walls) {
-        Window.draw(wall->getSprite());
-    }
-    for (const auto& trap : traps) {
-        Window.draw(trap->getSprite());
-    }
-    for (const auto& enemy : enemies) {
-        Window.draw(enemy->getSprite());
-    }
-    if (winTile) {
-        Window.draw(winTile->getSprite());
-    }
+void Level::draw(sf::RenderWindow& Window) const
+{
+	for (const auto& Wall : MWalls)
+	{
+		Window.draw(Wall->getSprite());
+	}
+	for (const auto& Trap : MTraps)
+	{
+		Window.draw(Trap->getSprite());
+	}
+	for (const auto& Enemy : MEnemies)
+	{
+		Window.draw(Enemy->getSprite());
+	}
+	if (MWinTile)
+	{
+		Window.draw(MWinTile->getSprite());
+	}
 }
 
-void Level::unloadLevel() {
-    for (auto& wall : walls) delete wall;
-    walls.clear();
+void Level::unloadLevel()
+{
+	for (const auto& Wall : MWalls) delete Wall;
+	MWalls.clear();
 
-    for (auto& trap : traps) delete trap;
-    traps.clear();
+	for (const auto& Trap : MTraps) delete Trap;
+	MTraps.clear();
 
-    for (auto& enemy : enemies) delete enemy;
-    enemies.clear();
+	for (const auto& Enemy : MEnemies) delete Enemy;
+	MEnemies.clear();
 
-    delete winTile;
-    winTile = nullptr;
+	delete MWinTile;
+	MWinTile = nullptr;
 }
 
-const sf::Vector2f& Level::getPlayerPosition() const {
-    return playerPosition;
+const sf::Vector2f& Level::getPlayerPosition() const
+{
+	return MPlayerPosition;
 }
 
-const std::vector<Character*>& Level::getWalls() const {
-    return walls;
+const std::vector<Character*>& Level::getWalls() const
+{
+	return MWalls;
 }
 
-const std::vector<Enemy*>& Level::getEnemies() const {
-    return enemies;
-}
-const std::vector<Character*>& Level::getTraps() const {
-    return traps;
+const std::vector<Enemy*>& Level::getEnemies() const
+{
+	return MEnemies;
 }
 
-void Level::update() {
+const std::vector<Character*>& Level::getTraps() const
+{
+	return MTraps;
+}
+
+Character* Level::getWinTile() const
+{
+	return MWinTile;
+}
+
+void Level::update()
+{
 }

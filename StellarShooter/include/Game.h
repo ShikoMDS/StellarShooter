@@ -1,13 +1,13 @@
 #pragma once
 
-#include <SFML/Graphics.hpp>
-#include <iostream>
-
 #include "Audio.h"
 #include "Config.h"
+#include "Enemy.h"
 #include "Level.h"
 #include "Player.h"
-#include "Enemy.h"
+
+#include <iostream>
+#include <SFML/Graphics.hpp>
 
 class Game
 {
@@ -16,12 +16,11 @@ public:
 	~Game();
 
 	void start(sf::RenderWindow& Window);
-	void attemptEnemyMove(Enemy& enemy, const sf::Vector2f& movement);
-	bool willCollideWithWall(const Character& character, float deltaX, float deltaY);
-	
+	void attemptEnemyMove(Enemy& Enemy, const sf::Vector2f& Movement) const;
+	bool willCollideWithWall(const Character& Character, float DeltaX, float DeltaY) const;
+
 	// Function to restart the level
 	void restartLevel();
-
 
 private:
 	Level MLevel;
@@ -30,23 +29,33 @@ private:
 	Audio& MAudio;
 	sf::Font MFont;
 
-	sf::FloatRect resumeButtonBounds;
-	sf::FloatRect menuButtonBounds;
+	int CurrentLevelNumber = 1; // Start with level 1
 
-	std::vector<Enemy> enemies;
+	sf::FloatRect ResumeButtonBounds;
+	sf::FloatRect MenuButtonBounds;
+
+	std::vector<Enemy> Enemies;
 
 	bool MIsPaused;
 
 	void processInput();
-	void attemptPlayerMove(const sf::Vector2f& movement);
-	bool willCollideWithWall(float deltaX, float deltaY);
+	void attemptPlayerMove(const sf::Vector2f& Movement);
+	bool playerWillCollideWithWall(float DeltaX, float DeltaY) const;
 	void togglePause();
-	void processConfiguration();
+	void processConfiguration() const;
 	void update();
-	void checkAndResolveEnemyCollisions();
-	void resolveEnemyCollision(Enemy& enemy1, Enemy& enemy2);
+	void checkAndResolveEnemyCollisions() const;
+	void resolveEnemyCollision(Enemy& Enemy1, Enemy& Enemy2) const;
 
-	void loadLevel(const std::string& levelPath); // Function to load a level
-	bool isColliding(const sf::FloatRect& bounds1, const sf::FloatRect& bounds2);
-	std::string currentLevelPath; // Store the path of the current level
+	void loadLevel(int LevelNumber); // Function to load a level
+	static bool isColliding(const sf::FloatRect& Bounds1, const sf::FloatRect& Bounds2);
+	bool playerReachedWinCondition() const;
+	void advanceToNextLevel();
+	void showWinScreen();
+	std::string CurrentLevelPath; // Store the path of the current level
+
+	bool isWinScreenActive = false;
+	sf::Text WinMessage;
+	sf::Text ReplayButton;
+	sf::Text MenuButton;
 };

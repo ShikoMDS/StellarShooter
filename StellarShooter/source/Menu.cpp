@@ -24,7 +24,7 @@ Menu::Menu(sf::RenderWindow& Window, Game& Game, Config& Settings, Audio& Audio)
 	MExitText.setPosition(250.f, 200.f);
 }
 
-void Menu::show()
+void Menu::show() const
 {
 	MAudio.playMenuMusic();
 	while (MWindow.isOpen())
@@ -32,7 +32,6 @@ void Menu::show()
 		sf::Event Event{};
 		while (MWindow.pollEvent(Event))
 		{
-
 			if (Event.type == sf::Event::Closed)
 			{
 				MWindow.close();

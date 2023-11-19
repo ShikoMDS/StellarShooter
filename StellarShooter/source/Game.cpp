@@ -2,7 +2,7 @@
 
 Game::Game(Config& Settings, Audio& Audio) : MConfig(Settings), MAudio(Audio), MIsPaused(false)
 {
-	// Rest of your constructor code
+	// Rest of constructor code
 
 	if (!MFont.loadFromFile("Resources/Fonts/Pixeled.ttf"))
 	{
@@ -11,70 +11,103 @@ Game::Game(Config& Settings, Audio& Audio) : MConfig(Settings), MAudio(Audio), M
 }
 
 
-Game::~Game()
-{
-}
+Game::~Game() = default;
 
 void Game::start(sf::RenderWindow& Window)
 {
 	// Calculate the view size to zoom in (2x zoom)
-	//sf::Vector2u windowSize = Window.getSize();
-	//sf::View view(sf::FloatRect(0.f, 0.f, windowSize.x / 2.0f, windowSize.y / 2.0f));
+	sf::Vector2u WindowSize = Window.getSize();
+	sf::View GameView(sf::FloatRect(0.f, 0.f, WindowSize.x / 2.0f, WindowSize.y / 2.0f));
 
+	sf::View UiView(sf::FloatRect(0.f, 0.f, WindowSize.x, WindowSize.y));
 
 	MAudio.playGameMusic();
-	sf::Texture playerTexture;
-	if (!playerTexture.loadFromFile("Resources/Sprites/Player.png")) {
+	sf::Texture PlayerTexture;
+	if (!PlayerTexture.loadFromFile("Resources/Sprites/Player.png"))
+	{
 		// Handle texture loading error
 		return;
 	}
 
-	MPlayer.setTexture(playerTexture);
+	MPlayer.setTexture(PlayerTexture);
 
 
 	// Load initial level or start a new game
-	loadLevel("Resources/Levels/level1.txt");
+	loadLevel(CurrentLevelNumber);
 
 	// Game loop
 	while (Window.isOpen())
 	{
-		sf::Event event;
-		while (Window.pollEvent(event))
+		sf::Event Event{};
+		while (Window.pollEvent(Event))
 		{
-			if (event.type == sf::Event::Closed)
+			if (Event.type == sf::Event::Closed)
 			{
 				Window.close();
 			}
-			else if (event.type == sf::Event::GainedFocus)
+			else if (Event.type == sf::Event::GainedFocus)
 			{
 				// Resume game activities
 			}
-			else if (event.type == sf::Event::LostFocus)
+			else if (Event.type == sf::Event::LostFocus)
 			{
 				// Pause game activities
 			}
-			else if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape) 
+			else if (Event.type == sf::Event::KeyPressed && Event.key.code == sf::Keyboard::Escape)
 			{
 				togglePause();
 			}
 
-			if (event.type == sf::Event::MouseButtonPressed) {
-				if (event.mouseButton.button == sf::Mouse::Left) {
-					sf::Vector2f mousePos = static_cast<sf::Vector2f>(Window.mapPixelToCoords(sf::Mouse::getPosition(Window)));
+			if (Event.type == sf::Event::MouseButtonPressed)
+			{
+				if (Event.mouseButton.button == sf::Mouse::Left)
+				{
+					auto MousePos = Window.mapPixelToCoords(sf::Mouse::getPosition(Window));
 
-					if (MIsPaused) {
-						if (resumeButtonBounds.contains(mousePos)) {
+					if (MIsPaused)
+					{
+						if (ResumeButtonBounds.contains(MousePos))
+						{
 							// Resume button clicked
 							togglePause();
 						}
-						else if (menuButtonBounds.contains(mousePos)) {
+						else if (MenuButtonBounds.contains(MousePos))
+						{
 							// Menu button clicked
 							// Handle transition to menu
+							MAudio.playMenuMusic();
+							togglePause();
+							MLevel.unloadLevel();
+							return;
 						}
 					}
 				}
 			}
 
+			if (isWinScreenActive)
+			{
+				if (Event.type == sf::Event::MouseButtonPressed && Event.mouseButton.button == sf::Mouse::Left)
+				{
+					if (auto MousePos = Window.mapPixelToCoords(sf::Mouse::getPosition(Window)); ReplayButton.
+						getGlobalBounds().contains(MousePos))
+					{
+						// Replay button clicked
+						isWinScreenActive = false;
+						CurrentLevelNumber = 1;
+						loadLevel(CurrentLevelNumber);
+					}
+					else if (MenuButton.getGlobalBounds().contains(MousePos))
+					{
+						// Main menu button clicked
+						// Code to go to the main menu
+						MAudio.playMenuMusic();
+						MLevel.unloadLevel();
+						CurrentLevelNumber = 1;
+						isWinScreenActive = false;
+						return;
+					}
+				}
+			}
 		}
 
 		// Process input, update game logic, render, etc.
@@ -84,116 +117,141 @@ void Game::start(sf::RenderWindow& Window)
 			MPlayer.update(); // Update the player logic if needed
 			processInput(); // Handle player input
 
-			// In Game::start method
-			for (auto& enemy : MLevel.getEnemies()) {
-				sf::Vector2f movement = enemy->calculateMovement(MPlayer.getPosition());
-				attemptEnemyMove(*enemy, movement);
+			for (auto& Enemy : MLevel.getEnemies())
+			{
+				sf::Vector2f Movement = Enemy->calculateMovement(MPlayer.getPosition());
+				attemptEnemyMove(*Enemy, Movement);
 			}
 
 			// Check collision with traps
-			for (const auto& trap : MLevel.getTraps()) {
-				if (isColliding(MPlayer.getGlobalBounds(), trap->getGlobalBounds())) {
-					// Handle collision with a trap (e.g., reduce player health)
+			for (const auto& Trap : MLevel.getTraps())
+			{
+				if (isColliding(MPlayer.getGlobalBounds(), Trap->getGlobalBounds()))
+				{
+					// Handle collision with a trap
 					MLevel.unloadLevel();
 					restartLevel();
 				}
 			}
 
 			// Check collision with enemies
-			for (const auto& enemy : MLevel.getEnemies()) {
-				if (isColliding(MPlayer.getGlobalBounds(), enemy->getGlobalBounds())) {
-					// Handle collision with an enemy (e.g., reduce player health or restart level)
+			for (const auto& Enemy : MLevel.getEnemies())
+			{
+				if (isColliding(MPlayer.getGlobalBounds(), Enemy->getGlobalBounds()))
+				{
+					// Handle collision with an enemy
 					MLevel.unloadLevel();
 					restartLevel();
 				}
 			}
 
+			if (playerReachedWinCondition())
+			{
+				advanceToNextLevel();
+			}
+
 			// Check and resolve collisions between enemies
 			checkAndResolveEnemyCollisions();
 
-			// Optionally, set the view's center to the player's position or another focal point
-			//view.setCenter(MPlayer.getPosition());
-			//Window.setView(view);
+			// Set the view's center to the player's position
+			GameView.setCenter(MPlayer.getPosition());
 		}
+
 
 		processConfiguration();
 
 		Window.clear();
+		Window.setView(GameView);
 
 		// Draw game elements, UI, etc.
 		MLevel.draw(Window);
 		MPlayer.draw(Window); // Draw the player
 
-		if (MIsPaused) {
+		Window.setView(UiView);
+		if (MIsPaused)
+		{
 			sf::Text PausedText("Paused", MFont, 30);
-			PausedText.setPosition(100, 100); // Set to appropriate position
+			PausedText.setPosition(100, 100);
 
-			sf::Text resumeText("Resume", MFont, 24);
-			resumeText.setPosition(100, 150); // Set to appropriate position
-			resumeButtonBounds = resumeText.getGlobalBounds(); // Get the bounds
+			sf::Text ResumeText("Resume", MFont, 24);
+			ResumeText.setPosition(100, 150);
+			ResumeButtonBounds = ResumeText.getGlobalBounds();
 
-			sf::Text menuText("Menu", MFont, 24);
-			menuText.setPosition(100, 200); // Set to appropriate position
-			menuButtonBounds = menuText.getGlobalBounds(); // Get the bounds
+			sf::Text MenuText("Menu", MFont, 24);
+			MenuText.setPosition(100, 200);
+			MenuButtonBounds = MenuText.getGlobalBounds();
 
 			Window.draw(PausedText);
-			Window.draw(resumeText);
-			Window.draw(menuText);
+			Window.draw(ResumeText);
+			Window.draw(MenuText);
 		}
 
+		if (isWinScreenActive)
+		{
+			Window.clear(); // Clear the screen before drawing the win screen
+			Window.draw(WinMessage);
+			Window.draw(ReplayButton);
+			Window.draw(MenuButton);
+		}
 
 		Window.display();
 	}
 }
 
-void Game::attemptEnemyMove(Enemy& enemy, const sf::Vector2f& movement) {
+void Game::attemptEnemyMove(Enemy& Enemy, const sf::Vector2f& Movement) const
+{
 	// Check collision separately for each axis
-	if (!willCollideWithWall(enemy, movement.x, 0.0f)) {
-		enemy.move(movement.x, 0.0f);
+	if (!willCollideWithWall(Enemy, Movement.x, 0.0f))
+	{
+		Enemy.move(Movement.x, 0.0f);
 	}
-	if (!willCollideWithWall(enemy, 0.0f, movement.y)) {
-		enemy.move(0.0f, movement.y);
+	if (!willCollideWithWall(Enemy, 0.0f, Movement.y))
+	{
+		Enemy.move(0.0f, Movement.y);
 	}
 }
 
-bool Game::willCollideWithWall(const Character& character, float deltaX, float deltaY) {
-	sf::FloatRect futureBounds = character.getGlobalBounds();
+bool Game::willCollideWithWall(const Character& Character, const float DeltaX, const float DeltaY) const
+{
+	sf::FloatRect FutureBounds = Character.getGlobalBounds();
 
-	// Adjustments based on the character's sprite
-	const float shrinkLeft = 1.5f;
-	const float shrinkRight = 2.0f;
-	const float shrinkTop = 2.0f;
-	const float shrinkBottom = 2.0f;
+	// Adjustments based on the enemy's sprite weirdness
+	constexpr float ShrinkLeft = 1.5f;
+	constexpr float ShrinkRight = 2.0f;
+	constexpr float ShrinkTop = 2.0f;
+	constexpr float ShrinkBottom = 2.0f;
 
-	futureBounds.left += shrinkLeft;
-	futureBounds.width -= (shrinkLeft + shrinkRight);
-	futureBounds.top += shrinkTop;
-	futureBounds.height -= (shrinkTop + shrinkBottom);
+	FutureBounds.left += ShrinkLeft;
+	FutureBounds.width -= (ShrinkLeft + ShrinkRight);
+	FutureBounds.top += ShrinkTop;
+	FutureBounds.height -= (ShrinkTop + ShrinkBottom);
 
-	futureBounds.left += deltaX;
-	futureBounds.top += deltaY;
+	FutureBounds.left += DeltaX;
+	FutureBounds.top += DeltaY;
 
-	for (const auto& wall : MLevel.getWalls()) {
-		if (futureBounds.intersects(wall->getGlobalBounds())) {
+	for (const auto& Wall : MLevel.getWalls())
+	{
+		if (FutureBounds.intersects(Wall->getGlobalBounds()))
+		{
 			return true;
 		}
 	}
 	return false;
 }
 
-void Game::restartLevel() {
+void Game::restartLevel()
+{
 	// Reset player's position to the starting position of the level
 	MPlayer.setPosition(MLevel.getPlayerPosition());
 
-	// Reset other game states as necessary (e.g., player health, score)
+	// Reset other game states as necessary
 
 	// Reload the level
-	loadLevel(currentLevelPath);
-
-	// Reset any other necessary states (e.g., enemy positions)
+	loadLevel(CurrentLevelNumber);
 }
 
-void Game::processInput() {
+void Game::processInput()
+{
 	sf::Vector2f movement(0.0f, 0.0f);
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) movement.x = -MPlayer.getSpeed();
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) movement.x = MPlayer.getSpeed();
@@ -203,35 +261,41 @@ void Game::processInput() {
 	attemptPlayerMove(movement);
 }
 
-void Game::attemptPlayerMove(const sf::Vector2f& movement) {
+void Game::attemptPlayerMove(const sf::Vector2f& Movement)
+{
 	// Check and apply movement on each axis separately
-	if (!willCollideWithWall(movement.x, 0.0f)) {
-		MPlayer.move(movement.x, 0.0f);
+	if (!playerWillCollideWithWall(Movement.x, 0.0f))
+	{
+		MPlayer.move(Movement.x, 0.0f);
 	}
-	if (!willCollideWithWall(0.0f, movement.y)) {
-		MPlayer.move(0.0f, movement.y);
+	if (!playerWillCollideWithWall(0.0f, Movement.y))
+	{
+		MPlayer.move(0.0f, Movement.y);
 	}
 }
 
-bool Game::willCollideWithWall(float deltaX, float deltaY) {
-	sf::FloatRect futureBounds = MPlayer.getGlobalBounds();
+bool Game::playerWillCollideWithWall(const float DeltaX, const float DeltaY) const
+{
+	sf::FloatRect FutureBounds = MPlayer.getGlobalBounds();
 
-	// Adjust these values based on your sprite's specific characteristics
-	const float shrinkLeft = 1.5f;
-	const float shrinkRight = 2.0f;
-	const float shrinkTop = 2.0f;
-	const float shrinkBottom = 2.0f;
+	// Adjustments based on the player's sprite weirdness
+	constexpr float ShrinkLeft = 1.5f;
+	constexpr float ShrinkRight = 2.0f;
+	constexpr float ShrinkTop = 2.0f;
+	constexpr float ShrinkBottom = 2.0f;
 
-	futureBounds.left += shrinkLeft;
-	futureBounds.width -= (shrinkLeft + shrinkRight);
-	futureBounds.top += shrinkTop;
-	futureBounds.height -= (shrinkTop + shrinkBottom);
+	FutureBounds.left += ShrinkLeft;
+	FutureBounds.width -= (ShrinkLeft + ShrinkRight);
+	FutureBounds.top += ShrinkTop;
+	FutureBounds.height -= (ShrinkTop + ShrinkBottom);
 
-	futureBounds.left += deltaX;
-	futureBounds.top += deltaY;
+	FutureBounds.left += DeltaX;
+	FutureBounds.top += DeltaY;
 
-	for (const auto& wall : MLevel.getWalls()) {
-		if (futureBounds.intersects(wall->getGlobalBounds())) {
+	for (const auto& Wall : MLevel.getWalls())
+	{
+		if (FutureBounds.intersects(Wall->getGlobalBounds()))
+		{
 			return true;
 		}
 	}
@@ -243,7 +307,7 @@ void Game::togglePause()
 	MIsPaused = !MIsPaused;
 }
 
-void Game::processConfiguration()
+void Game::processConfiguration() const
 {
 	// Adjust sound effects volume
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Equal))
@@ -280,58 +344,120 @@ void Game::processConfiguration()
 	}
 }
 
-void Game::update() {
-    // Update player...
-    MPlayer.update();
+void Game::update()
+{
+	// Update player...
+	MPlayer.update();
 
-    // Assuming MLevel is an instance of Level class in the Game class
-    auto& enemies = MLevel.getEnemies();
+	auto& Enemies = MLevel.getEnemies();
 
-    // Update each enemy
-    for (auto& enemy : enemies) {
-        sf::Vector2f playerPosition = MPlayer.getPosition();
+	// Update each enemy
+	for (auto& Enemy : Enemies)
+	{
+		sf::Vector2f PlayerPosition = MPlayer.getPosition();
 
-        // Calculate enemy's new position
-        // ... Rest of the logic ...
-    }
+		// Calculate enemy's new position
+		// Rest of the logic
+	}
 }
 
-void Game::checkAndResolveEnemyCollisions() {
-	for (size_t i = 0; i < MLevel.getEnemies().size(); ++i) {
-		for (size_t j = i + 1; j < MLevel.getEnemies().size(); ++j) {
-			Enemy* enemy1 = MLevel.getEnemies()[i];
-			Enemy* enemy2 = MLevel.getEnemies()[j];
+void Game::checkAndResolveEnemyCollisions() const
+{
+	for (size_t I = 0; I < MLevel.getEnemies().size(); ++I)
+	{
+		for (size_t J = I + 1; J < MLevel.getEnemies().size(); ++J)
+		{
+			Enemy* Enemy1 = MLevel.getEnemies()[I];
+			Enemy* Enemy2 = MLevel.getEnemies()[J];
 
-			if (enemy1->getGlobalBounds().intersects(enemy2->getGlobalBounds())) {
+			if (Enemy1->getGlobalBounds().intersects(Enemy2->getGlobalBounds()))
+			{
 				// Handle collision
-				// For example, prevent enemies from overlapping or adjust their positions
-				resolveEnemyCollision(*enemy1, *enemy2);
+				// Prevent enemies from overlapping or adjust their positions
+				resolveEnemyCollision(*Enemy1, *Enemy2);
 			}
 		}
 	}
 }
 
-void Game::resolveEnemyCollision(Enemy& enemy1, Enemy& enemy2) {
+void Game::resolveEnemyCollision(Enemy& Enemy1, Enemy& Enemy2) const
+{
 	// Implement collision resolution logic here
-	// For example, you might push the enemies away from each other
-	sf::Vector2f direction = enemy1.getPosition() - enemy2.getPosition();
-	float length = std::sqrt(direction.x * direction.x + direction.y * direction.y);
+	// Push the enemies away from each other
+	sf::Vector2f Direction = Enemy1.getPosition() - Enemy2.getPosition();
+	const float Length = std::sqrt(Direction.x * Direction.x + Direction.y * Direction.y);
 
-	if (length != 0) {
-		direction /= length; // Normalize the direction vector
-		float overlap = 0.5f * (length - enemy1.getGlobalBounds().width);
-		enemy1.move(overlap * direction.x, overlap * direction.y);
-		enemy2.move(-overlap * direction.x, -overlap * direction.y);
+	if (Length != 0)
+	{
+		Direction /= Length; // Normalize the direction vector
+		const float Overlap = 0.1f * (Length - Enemy1.getGlobalBounds().width);
+		Enemy1.move(Overlap * Direction.x, Overlap * Direction.y);
+		Enemy2.move(-Overlap * Direction.x, -Overlap * Direction.y);
 	}
 }
 
-void Game::loadLevel(const std::string& levelPath) {
-	currentLevelPath = levelPath; // Store the current level path
-	MLevel.loadFromFile(levelPath); // Load the level using Level class method
-	// Additional setup as needed (e.g., setting enemy positions)
-	MPlayer.setPosition(MLevel.getPlayerPosition());
+void Game::loadLevel(const int LevelNumber)
+{
+	const std::string LevelFilename = "Resources/Levels/Level" + std::to_string(LevelNumber) + ".txt";
+	if (MLevel.loadFromFile(LevelFilename))
+	{
+		std::cout << "Level " << LevelNumber << " loaded successfully." << std::endl;
+		MPlayer.setPosition(MLevel.getPlayerPosition());
+		// Reset or reinitialize other necessary elements
+	}
+	else
+	{
+		std::cerr << "Failed to load level " << LevelNumber << "." << std::endl;
+		// Handle error
+		MLevel.unloadLevel();
+		showWinScreen();
+	}
 }
 
-bool Game::isColliding(const sf::FloatRect& bounds1, const sf::FloatRect& bounds2) {
-	return bounds1.intersects(bounds2);
+bool Game::isColliding(const sf::FloatRect& Bounds1, const sf::FloatRect& Bounds2)
+{
+	return Bounds1.intersects(Bounds2);
+}
+
+bool Game::playerReachedWinCondition() const
+{
+	if (MLevel.getWinTile() && isColliding(MPlayer.getGlobalBounds(), MLevel.getWinTile()->getGlobalBounds()))
+	{
+		return true;
+	}
+	return false;
+}
+
+void Game::advanceToNextLevel()
+{
+	MLevel.unloadLevel();
+	CurrentLevelNumber++;
+	loadLevel(CurrentLevelNumber);
+}
+
+void Game::showWinScreen()
+{
+	isWinScreenActive = true;
+
+
+	// Set up the win message
+	WinMessage.setFont(MFont);
+	WinMessage.setString("You Win!");
+	WinMessage.setCharacterSize(50);
+	WinMessage.setPosition(100, 100);
+	WinMessage.setFillColor(sf::Color::White);
+
+	// Set up the replay button
+	ReplayButton.setFont(MFont);
+	ReplayButton.setString("Replay");
+	ReplayButton.setCharacterSize(30);
+	ReplayButton.setPosition(100, 200);
+	ReplayButton.setFillColor(sf::Color::White);
+
+	// Set up the main menu button
+	MenuButton.setFont(MFont);
+	MenuButton.setString("Main Menu");
+	MenuButton.setCharacterSize(30);
+	MenuButton.setPosition(100, 300);
+	MenuButton.setFillColor(sf::Color::White);
 }

@@ -1,23 +1,26 @@
 #include "Enemy.h"
 
-Enemy::Enemy(float x, float y) : Character(CharTypeEnemy, x, y), speed(1.0f) {
-    // Additional initialization if needed
+Enemy::Enemy(const float X, const float Y) : Character(CharTypeEnemy, X, Y), Speed(1.0f)
+{
+	// Additional initialization if needed
 }
 
-sf::Vector2f Enemy::calculateMovement(const sf::Vector2f& playerPosition) {
-    sf::Vector2f direction = playerPosition - getPosition();
+sf::Vector2f Enemy::calculateMovement(const sf::Vector2f& PlayerPosition) const
+{
+	sf::Vector2f Direction = PlayerPosition - getPosition();
 
-    // Normalize the direction vector
-    float length = std::sqrt(direction.x * direction.x + direction.y * direction.y);
-    if (length != 0) {
-        direction.x /= length;
-        direction.y /= length;
-    }
+	// Normalize the direction vector
+	const float Length = std::sqrt(Direction.x * Direction.x + Direction.y * Direction.y);
+	if (Length != 0)
+	{
+		Direction.x /= Length;
+		Direction.y /= Length;
+	}
 
-    // Multiply by speed
-    direction.x *= speed;
-    direction.y *= speed;
+	// Multiply by speed
+	Direction.x *= Speed;
+	Direction.y *= Speed;
 
-    // Return the calculated direction for the enemy to move
-    return direction;
+	// Return the calculated direction for the enemy to move
+	return Direction;
 }

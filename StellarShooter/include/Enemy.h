@@ -1,15 +1,18 @@
 #pragma once
+
 #include "Character.h"
+
 #include <cmath> // Include for sqrt function
 #include <iostream>
 
-class Enemy : public Character {
+class Enemy : public Character
+{
 public:
-    Enemy(float x, float y);
+	Enemy(float X, float Y);
 
-    // Method to calculate the direction of movement towards the player
-    sf::Vector2f calculateMovement(const sf::Vector2f& playerPosition);
+	// Method to calculate the direction of movement towards the player
+	sf::Vector2f calculateMovement(const sf::Vector2f& PlayerPosition) const;
 
 private:
-    float speed; // Speed of the enemy
+	float Speed; // Speed of the enemy
 };

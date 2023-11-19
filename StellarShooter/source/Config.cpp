@@ -65,7 +65,7 @@ bool Config::loadFromFile(const std::string& FilePath)
 	return true;
 }
 
-bool Config::saveToFile(const std::string& FilePath) 
+bool Config::saveToFile(const std::string& FilePath)
 {
 	std::ofstream ConfigFile(FilePath);
 
@@ -101,14 +101,12 @@ void Config::applySettings(sf::RenderWindow& Window) const
 
 int Config::getSoundVolume() const
 {
-	// Implement the logic to return the sound volume
-	return MSoundVolume; // Assuming SoundVolume is a member variable in Config
+	return MSoundVolume;
 }
 
 int Config::getMusicVolume() const
 {
-	// Implement the logic to return the music volume
-	return MMusicVolume; // Assuming MusicVolume is a member variable in Config
+	return MMusicVolume;
 }
 
 void Config::adjustVolume(int& Volume, const int Step)

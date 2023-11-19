@@ -1,15 +1,16 @@
 #pragma once
 
-#include <SFML/Graphics.hpp>
-#include "Game.h"
-#include "Config.h"
 #include "Audio.h"
+#include "Config.h"
+#include "Game.h"
+
+#include <SFML/Graphics.hpp>
 
 class Menu
 {
 public:
 	Menu(sf::RenderWindow& Window, Game& Game, Config& Settings, Audio& Audio);
-	void show();
+	void show() const;
 
 private:
 	sf::RenderWindow& MWindow;

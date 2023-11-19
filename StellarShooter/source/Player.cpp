@@ -1,48 +1,51 @@
-// Player.cpp
 #include "Player.h"
 
 Player::Player() : MSpeed(5.0f)
 {
-	
-	// Set other properties of the player shape if needed
+	// Set other properties of the player shape
 }
 
 Player::~Player()
 {
-	// Clean up resources if needed
+	// Clean up resources
 }
 
-void Player::update() {
-	float moveX = 0.0f, moveY = 0.0f;
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
-		moveX -= getSpeed();
+void Player::update()
+{
+	float MoveX = 0.0f, MoveY = 0.0f;
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
+	{
+		MoveX -= getSpeed();
 	}
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
-		moveX += getSpeed();
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
+	{
+		MoveX += getSpeed();
 	}
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
-		moveY -= getSpeed();
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
+	{
+		MoveY -= getSpeed();
 	}
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
-		moveY += getSpeed();
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
+	{
+		MoveY += getSpeed();
 	}
 
-	// Check for collisions here, if necessary
+	// Check for collisions here
 
-	move(moveX, moveY);
+	move(MoveX, MoveY);
 }
 
-void Player::draw(sf::RenderWindow& Window)
+void Player::draw(sf::RenderWindow& Window) const
 {
 	Window.draw(MSprite);
 }
 
-void Player::setTexture(const sf::Texture& texture)
+void Player::setTexture(const sf::Texture& Texture)
 {
-	MSprite.setTexture(texture);
+	MSprite.setTexture(Texture);
 }
 
-void Player::setPosition(sf::Vector2f NewPosition)
+void Player::setPosition(const sf::Vector2f NewPosition)
 {
 	this->MSprite.setPosition(NewPosition);
 }
@@ -52,12 +55,14 @@ sf::Vector2f Player::getPosition() const
 	return MSprite.getPosition();
 }
 
-sf::FloatRect Player::getGlobalBounds() const {
-	return MSprite.getGlobalBounds(); // or replace `sprite` with your graphical object
+sf::FloatRect Player::getGlobalBounds() const
+{
+	return MSprite.getGlobalBounds();
 }
 
-void Player::move(float offsetX, float offsetY) {
-	MSprite.move(offsetX, offsetY);
+void Player::move(const float OffsetX, const float OffsetY)
+{
+	MSprite.move(OffsetX, OffsetY);
 }
 
 float Player::getSpeed() const
@@ -65,19 +70,22 @@ float Player::getSpeed() const
 	return MSpeed;
 }
 
-void Player::setCollisionDirection(const sf::Vector2f& direction) {
-	lastCollisionDirection = direction;
+void Player::setCollisionDirection(const sf::Vector2f& Direction)
+{
+	LastCollisionDirection = Direction;
 }
 
-bool Player::canMoveInDirection(const sf::Vector2f& direction) const {
+bool Player::canMoveInDirection(const sf::Vector2f& Direction) const
+{
 	// If the direction is opposite to the collision direction, movement is allowed
-	if ((direction.x < 0 && lastCollisionDirection.x > 0) ||
-		(direction.x > 0 && lastCollisionDirection.x < 0) ||
-		(direction.y < 0 && lastCollisionDirection.y > 0) ||
-		(direction.y > 0 && lastCollisionDirection.y < 0)) {
+	if ((Direction.x < 0 && LastCollisionDirection.x > 0) ||
+		(Direction.x > 0 && LastCollisionDirection.x < 0) ||
+		(Direction.y < 0 && LastCollisionDirection.y > 0) ||
+		(Direction.y > 0 && LastCollisionDirection.y < 0))
+	{
 		return true;
 	}
 	// No movement in the direction of the last collision
-	return (direction.x == 0 || lastCollisionDirection.x == 0) &&
-		(direction.y == 0 || lastCollisionDirection.y == 0);
+	return (Direction.x == 0 || LastCollisionDirection.x == 0) &&
+		(Direction.y == 0 || LastCollisionDirection.y == 0);
 }
